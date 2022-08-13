@@ -1,69 +1,84 @@
 const mongoose = require('mongoose')
-let Schema = new mongoose.Schema
-const uniqueValidator = require('mongoose-unique-validator')
+const Schema = mongoose.Schema
 
 let validRoles = {
-	values: ['ADMIN_ROLE', 'USER_ROLE'],
-	message: '{VALUE} is not a valid role'
+    values: ['ADMIN_ROLE', 'USER_ROLE'],
+    message: '{VALUE} is not a valir role'
 }
 
-const schemaUser = new Schema({
-	name: {
-		type: String,
-		required: [true, 'Need name']
-	},
-	username:{
-		type: String,
-		required: true,
-		unique: true
-	},
-	games: [{
-		type: Schema.Types.ObjectId,
-		ref: 'Games'
-	}],
-	matches: [{
-		type: Schema.Types.ObjectId,
-		ref: 'Match'
-	}],
-	platforms: [{
-		type:String
-	}],
-	email: {
-		type: String,
-		require: [true, 'Need email'],
-		unique: true
-	},
-	password: {
-		type: String,
-		required: [true, 'Need Password']
-	},
-	role: {
-		type: String,
-		default: 'USER_ROLE',
-		enum: validRoles
-	},
-	img:{
-		type:String
-	},
-	status: {
-		type: Boolean,
-		default: true
-	},
-	google: {
-		type: Boolean,
-		default: false
-	}
-})
-
-schemaUser.methods.toJSON = function(){
-	let user = this
-	let userObject = user.toObject()
-	delete userObject.password
-	return userObject
+let validPlatforms = {
+    values: [
+        '15', '16', '17', '18', '19', '187',
+        '1', '80', '14', '186',
+        '7', '8', '10', '11'
+    ]
 }
 
-schemaUser.plugin(uniqueValidator, {
-	message: '{PATH} should be unique'
+const userSchema = new Schema({
+    name: {
+        type: String,
+        required: [true, 'Need name']
+    },
+    username: {
+        type: String,
+        required: [true, 'Need username'],
+        unique: true
+    },
+    email: {
+        type: String,
+        required: [true, 'Need email'],
+        unique: true
+    },
+    password: {
+        type: String,
+        required: [true, 'Need email'],
+    },
+    role: {
+        type: String,
+        default: 'USER_ROLE',
+        enum: validRoles
+    },
+    img: {
+        type: String
+    },
+    status: {
+        type: Boolean,
+        default: true
+    },
+    google: {
+        type: Boolean,
+        default: false
+    },
+    matches: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Match'
+    }],
+    victorys: {
+        type: Number,
+        default: 0
+    },
+    platforms: [{
+        type: String,
+        enum: validPlatforms
+    }],
+    games: [{
+        type: Number
+    }],
+    acceptInvitations: {
+        type: Boolean,
+        default: true
+    },
+    partners: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }]
 })
 
-module.exports = mongoose.model('User', schemaUser)
+userSchema.methods.toJSON = function() {
+    let user = this;
+    let userObject = user.toObject()
+    delete userObject.password
+    return userObject
+}
+
+module.exports = mongoose.model('User', userSchema)
